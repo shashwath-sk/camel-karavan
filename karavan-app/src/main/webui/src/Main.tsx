@@ -30,6 +30,7 @@ import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import {MainLogin} from "./MainLogin";
 import {DashboardPage} from "./dashboard/DashboardPage";
+import Navbar from "./navbar/Navbar";
 
 class ToastMessage {
     id: string = ''
@@ -232,6 +233,9 @@ export class Main extends React.Component<Props, State> {
     getMain() {
         return (
             <>
+            <div>
+                <Navbar />
+            </div>
                 <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
                       alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>
                     <FlexItem>
