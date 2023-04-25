@@ -238,9 +238,6 @@ export class Main extends React.Component<Props, State> {
             </div>
                 <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
                       alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>
-                    <FlexItem>
-                        {this.pageNav()}
-                    </FlexItem>
                     <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
                         {this.state.pageId === 'projects' &&
                             <ProjectsPage key={this.state.request}
@@ -258,6 +255,9 @@ export class Main extends React.Component<Props, State> {
                         {this.state.pageId === 'components' &&
                             <ComponentsPage dark={false} onRefresh={this.updateComponents}/>}
                         {this.state.pageId === 'eip' && <EipPage dark={false}/>}
+                    </FlexItem>
+                    <FlexItem>
+                        {this.pageNav()}
                     </FlexItem>
                 </Flex>
             </>
