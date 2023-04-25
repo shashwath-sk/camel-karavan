@@ -68,6 +68,11 @@
   background-color: var(--pf-global--BackgroundColor--dark-400);
 }
 
+.menubar-button-selected{
+  background-color: #E97826;
+  color: whitesmoke;
+}
+
 .karavan .integration-card .pf-c-card__footer {
   text-align: end;
 }

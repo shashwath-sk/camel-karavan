@@ -4,14 +4,18 @@ import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import './Navbar.css';
 
-class Navbar extends Component {
+interface Props {
+  setShowMenuModal: (showMenuModal: boolean) => void;
+  showMenuModal: boolean;
+}
+class Navbar extends Component<Props> {
 
   handleAccountClick = () => {
     // Show dropdown or modal with account info
   };
 
   handleMenuClick = () => {
-    // setState({ isMenuClick: !this.state.isMenuClick });
+    this.props.setShowMenuModal(!this.props.showMenuModal);
   };
 
   render() {
@@ -19,13 +23,13 @@ class Navbar extends Component {
       <div className="navbar">
         <div className='navbar-heading'>
           <div className='heading-name'>
-            <a>Apache Karavan</a>
+            <span>Apache Karavan</span>
           </div>
           <div className='heading-div'>
-            <a>|</a>
+            <span>|</span>
           </div>
           <div className='heading-desc'>
-            <a>Your Integration Toolkit</a>
+            <span>Your Integration Toolkit</span>
           </div>
         </div>
         <div className='navbar-utils'>
@@ -34,7 +38,7 @@ class Navbar extends Component {
               <FontAwesomeIcon icon={faUser} fontSize={20}/>
             </div>
             <div>
-              <a>My Account</a>
+              <span>My Account</span>
             </div>
           </div>
           <div className='navbar-menu' onClick={this.handleMenuClick}>
