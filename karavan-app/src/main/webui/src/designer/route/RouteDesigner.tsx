@@ -117,7 +117,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         propertyOnly: false,
         selectedRoutes: [],
         activeTabKey: -1,
-        routeView: 'View All'
+        routeView: 'View All',
         routeThambnailarr: {},
     };
 
