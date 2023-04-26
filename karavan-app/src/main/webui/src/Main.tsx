@@ -89,7 +89,7 @@ export class Main extends React.Component<Props, State> {
         openapi: '',
         filename: '',
         key: '',
-        showMenuModal: true
+        showMenuModal: false
     };
 
     designer = React.createRef();
