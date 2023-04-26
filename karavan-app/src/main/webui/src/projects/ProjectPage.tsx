@@ -48,7 +48,7 @@ interface State {
     isDeleteModalOpen: boolean,
     isCreateModalOpen: boolean,
     fileToDelete?: ProjectFile,
-    mode: "design" | "code",
+    mode: "design" | "code" | "genAI",
     editAdvancedProperties: boolean
     key: string
     environments: string[],

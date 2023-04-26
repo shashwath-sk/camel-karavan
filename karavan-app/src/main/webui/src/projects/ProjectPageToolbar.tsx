@@ -26,7 +26,7 @@ interface Props {
     isKamelets: boolean,
     config: any,
     file?: ProjectFile,
-    mode: "design" | "code",
+    mode: "design" | "code" | "genAI",
     editAdvancedProperties: boolean,
     addProperty: () => void,
     download: () => void,
@@ -35,7 +35,7 @@ interface Props {
     setUploadModalOpen: () => void,
     onRefresh: () => void,
     setEditAdvancedProperties: (checked: boolean) => void,
-    setMode: (mode: "design" | "code") => void,
+    setMode: (mode: "design" | "code" | "genAI") => void,
 }
 
 interface State {
@@ -119,6 +119,8 @@ export class ProjectPageToolbar extends React.Component<Props> {
                                              onChange={s => this.props.setMode.call(this, "design")}/>
                             <ToggleGroupItem text="Code" buttonId="code" isSelected={mode === "code"}
                                              onChange={s => this.props.setMode.call(this, "code")}/>
+                            <ToggleGroupItem text="GenAI" buttonId="genAI" isSelected={mode === "genAI"}
+                                                onChange={s => this.props.setMode.call(this, "genAI")}/>
                         </ToggleGroup>
                     </FlexItem>}
 
