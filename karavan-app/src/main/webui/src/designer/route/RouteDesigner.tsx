@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {createRef, RefObject} from 'react';
 import {
     Drawer,
     DrawerPanelContent,
@@ -27,6 +27,7 @@ import {
     MenuList,
     MenuItem,
 } from '@patternfly/react-core';
+import html2canvas from 'html2canvas';
 import '../karavan.css';
 import './RouteDesigner.css';
 import { DslSelector } from "./DslSelector";
@@ -73,9 +74,28 @@ export interface RouteDesignerState {
     selectedRoutes: number[]
     activeTabKey: number
     routeView: string
+    routeThambnailarr: any
 }
 
 export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
+
+    private sourceRef: RefObject<HTMLDivElement>;
+    private targetRef: RefObject<HTMLDivElement>;
+
+    constructor(props: Props) {
+        super(props);
+        this.sourceRef = createRef();
+        this.targetRef = createRef();
+      }
+
+    //   handleConvertToImage = () => {
+    //     html2canvas(this.sourceRef.current as HTMLDivElement).then((canvas) => {
+    //       const image = canvas.toDataURL();
+    //       (this.targetRef.current as HTMLDivElement).style.backgroundImage = `url(${image})`;
+    //       const exampleImg  = document.getElementById('thumbnai-img') as HTMLImageElement;
+    //       exampleImg.setAttribute("src", image);
+    //     });
+    //   };
 
     public state: RouteDesignerState = {
         logic: new RouteDesignerLogic(this),
@@ -98,6 +118,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         selectedRoutes: [],
         activeTabKey: -1,
         routeView: 'View All'
+        routeThambnailarr: {},
     };
 
     // function handleRoutesTabCLick which will be passed to RoutesTab 
@@ -199,7 +220,6 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
             <div ref={this.state.printerRef} className="graph">
                 {(this.state.activeTabKey !== -1  || this.state.routeView === 'View All' ) &&
                     <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top + 10} left={left - 215} integration={integration} />
-                    // <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top+10} left={left} integration={integration}/>
                 }
                 <div className='thumbnail-section'>
                     <div className='thumbnail-header' style={{ zIndex: 100 }}>
@@ -215,6 +235,12 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                                             <MenuItem key={index} itemId={index} className='single-thumbnail'
                                                 onClick={
                                                     (event) => {
+                                                        html2canvas(this.sourceRef.current as HTMLDivElement).then((canvas) => {
+                                                          const image = canvas.toDataURL();
+                                                          (this.targetRef.current as HTMLDivElement).style.backgroundImage = `url(${image})`;
+                                                          const exampleImg  = document.getElementById(index.toString()) as HTMLImageElement;
+                                                          exampleImg.setAttribute("src", image);
+                                                        });
                                                         console.log('index: ', index);
                                                         if (!this.state.selectedRoutes.includes(index)) {
                                                             this.setState({ selectedRoutes: [...this.state.selectedRoutes, index] });
@@ -224,6 +250,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                                                         this.handleActiveTabKey(this.state.selectedRoutes.indexOf(index));
                                                     }
                                                 } >
+                                                <img id={index.toString()} src='samim' alt='samim' className='thumbnail-image' />
                                             </MenuItem>
                                         ))
                                     }
@@ -245,6 +272,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                             />
                         </div>
                     }
+                   <div ref={this.targetRef}>
                     {routeConfigurations?.map((routeConfiguration, index: number) => (
                         <DslElement key={routeConfiguration.uuid + key}
                             integration={integration}
@@ -258,6 +286,8 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                             step={routeConfiguration}
                             parent={undefined} />
                     ))}
+                    </div>
+                    <div ref={this.sourceRef}>
                     {routes?.map((route: any, index: number) => (
                         (index === this.state.selectedRoutes[this.state.activeTabKey] || this.state.routeView === 'View All') &&
                         <DslElement key={route.uuid + key}
@@ -272,6 +302,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                             step={route}
                             parent={undefined} />
                     ))}
+                    </div>
                     <div className="add-flow">
                         <Button
                             variant={routes.length === 0 ? 'primary' : 'secondary'}
@@ -295,7 +326,9 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                 <div className="dsl-page-columns">
                     <Drawer isExpanded isInline>
                         <DrawerContent panelContent={this.getPropertiesPanel()}>
-                            <DrawerContentBody>{this.getGraph()}</DrawerContentBody>
+                            <DrawerContentBody>
+                                {this.getGraph()}
+                            </DrawerContentBody>
                         </DrawerContent>
                     </Drawer>
                 </div>
