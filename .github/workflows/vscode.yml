@@ -46,23 +46,3 @@ jobs:
       - name: Karavan Core install
         working-directory: ./karavan-core
         run: npm install
-
-      #  Building Karavan VSCode extensions
-      - name: Karavan VS Code extension (install dependencies)
-        working-directory: ./karavan-vscode  
-        run: npm update && npm install 
-
-      - name: Karavan VS Code extension (install vsce)
-        working-directory: ./karavan-vscode
-        run: npm install -g @vscode/vsce
-
-      - name: Karavan VS Code extension (package)
-        working-directory: ./karavan-vscode
-        run: vsce package
-
-      - name: Karavan VS Code extension (upload)
-        uses: actions/upload-artifact@v3
-        with:
-          name: camel-karavan-vscode.vsix
-          path: ./karavan-vscode/*.vsix
-        if: ${{ github.ref == 'refs/heads/main' }}
