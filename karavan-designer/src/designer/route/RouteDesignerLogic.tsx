@@ -301,6 +301,7 @@ export class RouteDesignerLogic {
 
     setDslDefaults(step: CamelElement): CamelElement {
         if (step.dslName === 'LogDefinition') {
+            // eslint-disable-next-line no-template-curly-in-string
             (step as LogDefinition).message = '${body}'
         }
         if (step.dslName === 'ChoiceDefinition') {

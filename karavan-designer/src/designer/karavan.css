@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-.karavan .tools-section {
+ .karavan .tools-section {
     padding-top: 0px;
     padding-bottom: 0px;
     padding-right: 0;
@@ -369,7 +369,7 @@
 
 .karavan .properties .expression-title {
     font-size: 17px;
-    font-weught: bold;
+    font-weight: bold;
 }
 
 .karavan .properties .text-area {
@@ -385,9 +385,10 @@
     height: auto;
 }
 
-.karavan .properties .pf-c-select__menu-item {
+/*.karavan .properties .pf-c-select__menu-item { */
     /*width: 280px;*/
-}
+ /*} */
+
 
 .karavan .properties .pf-c-select__menu-item-description {
     overflow-wrap: anywhere;
@@ -528,8 +529,8 @@
 
 /*Graph*/
 .karavan .dsl-page .graph {
-    display: block;
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
     font-size: 14px;
     height: 100%;
     width: 100%;
@@ -1057,7 +1058,7 @@
     height: 44px;
     margin-left: 6px;
     cursor: pointer;
-    ustify-content: space-between;
+    justify-content: space-between;
 }
 
 .karavan .rest-page .rest-config-card,
