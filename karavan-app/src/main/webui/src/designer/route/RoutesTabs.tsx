@@ -6,6 +6,7 @@ interface Props {
     handleRoutesCloseClick: (selectedRoutes: number[]) => void
     activeTabKey: number
     handleActiveTabKey: (activeTabKey: number) => void
+    routes: any[]
 }
 
 const RoutesTab = (props: Props) => {
@@ -48,7 +49,7 @@ const RoutesTab = (props: Props) => {
             props.handleActiveTabKey(-1);
         } else {
             props.handleActiveTabKey(props.selectedRoutes[0]);
-            setTabs(props.selectedRoutes.map((route) => `Route ${route}`));
+            setTabs(props.selectedRoutes.map((route) => `Route ${props.routes[route].id}`));
         }
     }, [props.selectedRoutes]);
 
@@ -63,7 +64,7 @@ const RoutesTab = (props: Props) => {
     }, [tabs]);
 
     return (
-        props.selectedRoutes.length == 0 ? <></> :
+        props.selectedRoutes.length === 0 ? <></> :
             <Tabs
                 activeKey={props.activeTabKey}
                 onSelect={(event: any, tabIndex: string | number) => props.handleActiveTabKey(tabIndex as number)}

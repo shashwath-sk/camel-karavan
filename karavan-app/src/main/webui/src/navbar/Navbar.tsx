@@ -22,6 +22,9 @@ class Navbar extends Component<Props> {
     return (
       <div className="navbar">
         <div className='navbar-heading'>
+          <div className='navbar-menu' onClick={this.handleMenuClick}>
+            <FontAwesomeIcon icon={faBars} fontSize={20}/>
+          </div>
           <div className='heading-name'>
             <span>Apache Karavan</span>
           </div>
@@ -40,9 +43,6 @@ class Navbar extends Component<Props> {
             <div>
               <span>My Account</span>
             </div>
-          </div>
-          <div className='navbar-menu' onClick={this.handleMenuClick}>
-            <FontAwesomeIcon icon={faBars} fontSize={20}/>
           </div>
         </div>
       </div>

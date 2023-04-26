@@ -272,6 +272,12 @@ export class Main extends React.Component<Props, State> {
 
                 <Flex direction={{ default: "row" }} style={{ width: "100%", height: "100%" }}
                     alignItems={{ default: "alignItemsStretch" }} spaceItems={{ default: 'spaceItemsNone' }}>
+                        {
+                            this.state.showMenuModal &&
+                            <FlexItem>
+                                {this.pageNav()}
+                            </FlexItem>
+                        }
                     <FlexItem flex={{ default: "flex_2" }} style={{ height: "100%" }}>
                         {this.state.pageId === 'projects' &&
                             <ProjectsPage key={this.state.request}
@@ -290,12 +296,6 @@ export class Main extends React.Component<Props, State> {
                             <ComponentsPage dark={false} onRefresh={this.updateComponents} />}
                         {this.state.pageId === 'eip' && <EipPage dark={false} />}
                     </FlexItem>
-                    {
-                        this.state.showMenuModal &&
-                        <FlexItem>
-                            {this.pageNav()}
-                        </FlexItem>
-                    }
                 </Flex>
             </>
         )

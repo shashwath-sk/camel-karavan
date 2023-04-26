@@ -29,16 +29,17 @@ import {
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './RouteDesigner.css';
-import {DslSelector} from "./DslSelector";
-import {DslProperties} from "./DslProperties";
-import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
-import {DslConnections} from "./DslConnections";
+import { DslSelector } from "./DslSelector";
+import { DslProperties } from "./DslProperties";
+import { CamelElement, Integration } from "karavan-core/lib/model/IntegrationDefinition";
+import { DslConnections } from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
-import {DslElement} from "./DslElement";
-import {CamelUi} from "../utils/CamelUi";
-import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
-import {RouteDesignerLogic} from "./RouteDesignerLogic";
+import { DslElement } from "./DslElement";
+import { CamelUi } from "../utils/CamelUi";
+import { CamelDisplayUtil } from "karavan-core/lib/api/CamelDisplayUtil";
+import { RouteDesignerLogic } from "./RouteDesignerLogic";
 import RoutesTab from './RoutesTabs';
+import DropDownWrapper from './DropDownWrapper';
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
@@ -71,6 +72,7 @@ export interface RouteDesignerState {
     selectorTabIndex?: string | number
     selectedRoutes: number[]
     activeTabKey: number
+    routeView: string
 }
 
 export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
@@ -94,7 +96,8 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         printerRef: React.createRef(),
         propertyOnly: false,
         selectedRoutes: [],
-        activeTabKey: -1
+        activeTabKey: -1,
+        routeView: 'View All'
     };
 
     // function handleRoutesTabCLick which will be passed to RoutesTab 
@@ -110,6 +113,9 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
     };
     handleMenuListClick = (index: number) => {
         this.setState({ activeTabKey: index });
+    };
+    setRouteView = (routeView: string) => {
+        this.setState({ routeView: routeView });
     };
 
     componentDidMount() {
@@ -191,48 +197,54 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         const routeConfigurations = CamelUi.getRouteConfigurations(integration);
         return (
             <div ref={this.state.printerRef} className="graph">
-                {this.state.activeTabKey !== -1 &&
+                {(this.state.activeTabKey !== -1  || this.state.routeView === 'View All' ) &&
                     <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top + 10} left={left - 215} integration={integration} />
                     // <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top+10} left={left} integration={integration}/>
                 }
                 <div className='thumbnail-section'>
-                    <div className='thumbnail-header'>
-                        <h1> Routes </h1>
+                    <div className='thumbnail-header' style={{ zIndex: 100 }}>
+                        <DropDownWrapper inputArray={['View All', 'View Tabwise']} val={this.state.routeView} setVal={this.setRouteView} />
                     </div>
-                    <Menu className='scrollable' >
-                        <MenuContent menuHeight='90%'>
-                            <MenuList>
-                                {
-                                    routes?.map((route: CamelElement, index: number) => (
-                                        <MenuItem key={index} itemId={index} className='single-thumbnail'
-                                            onClick={
-                                                (event) => {
-                                                    console.log('index: ', index);
-                                                    if (!this.state.selectedRoutes.includes(index)) {
-                                                        this.setState({ selectedRoutes: [...this.state.selectedRoutes, index] });
-                                                        this.handleActiveTabKey(this.state.selectedRoutes.length - 1);
-                                                        return;
+                    {
+                        this.state.routeView !== 'View All' &&
+                        <Menu className='scrollable' style={{ zIndex: 1 }}>
+                            <MenuContent menuHeight='90%'>
+                                <MenuList>
+                                    {
+                                        routes?.map((route: CamelElement, index: number) => (
+                                            <MenuItem key={index} itemId={index} className='single-thumbnail'
+                                                onClick={
+                                                    (event) => {
+                                                        console.log('index: ', index);
+                                                        if (!this.state.selectedRoutes.includes(index)) {
+                                                            this.setState({ selectedRoutes: [...this.state.selectedRoutes, index] });
+                                                            this.handleActiveTabKey(this.state.selectedRoutes.length - 1);
+                                                            return;
+                                                        }
+                                                        this.handleActiveTabKey(this.state.selectedRoutes.indexOf(index));
                                                     }
-                                                    this.handleActiveTabKey(this.state.selectedRoutes.indexOf(index));
-                                                }
-                                            } >
-                                        </MenuItem>
-                                    ))
-                                }
-                            </MenuList>
-                        </MenuContent>
-                    </Menu>
+                                                } >
+                                            </MenuItem>
+                                        ))
+                                    }
+                                </MenuList>
+                            </MenuContent>
+                        </Menu>
+                    }
                 </div>
                 <div className="flows" data-click="FLOWS" onClick={event => this.state.logic.unselectElement(event)}
                     ref={el => this.state.logic.onResizePage(el)}>
-                    <div className='routes'>
-                        <RoutesTab
-                            selectedRoutes={this.state.selectedRoutes}
-                            handleRoutesCloseClick={this.handleRoutesCloseClick}
-                            activeTabKey={this.state.activeTabKey}
-                            handleActiveTabKey={this.handleActiveTabKey}
-                        />
-                    </div>
+                    {this.state.routeView !== 'View All' &&
+                        <div className='routes'>
+                            <RoutesTab
+                                routes={routes}
+                                selectedRoutes={this.state.selectedRoutes}
+                                handleRoutesCloseClick={this.handleRoutesCloseClick}
+                                activeTabKey={this.state.activeTabKey}
+                                handleActiveTabKey={this.handleActiveTabKey}
+                            />
+                        </div>
+                    }
                     {routeConfigurations?.map((routeConfiguration, index: number) => (
                         <DslElement key={routeConfiguration.uuid + key}
                             integration={integration}
@@ -247,7 +259,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                             parent={undefined} />
                     ))}
                     {routes?.map((route: any, index: number) => (
-                        index == this.state.selectedRoutes[this.state.activeTabKey] &&
+                        (index === this.state.selectedRoutes[this.state.activeTabKey] || this.state.routeView === 'View All') &&
                         <DslElement key={route.uuid + key}
                             integration={integration}
                             openSelector={this.state.logic.openSelector}
