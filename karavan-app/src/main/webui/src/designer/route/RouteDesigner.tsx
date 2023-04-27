@@ -116,7 +116,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         zoom: 1
     };
 
-    handleWheel(e) {
+    handleWheel(e: any) {
         e.preventDefault();
         const direction1 = e.deltaY > 0 ? -1 : 1;
         const direction2 = e.deltaX > 0 ? -1 : 1;
