@@ -3,9 +3,8 @@
   "version": "3.20.2-SNAPSHOT",
   "private": true,
   "scripts": {
-    "copy-designer": "cp -r ../../../../karavan-designer/src/designer src && cp -r ../../../../karavan-designer/src/kamelets src && cp -r ../../../../karavan-designer/src/components src && cp -r ../../../../karavan-designer/src/eip src",
-    "start": "npm run copy-designer && react-scripts start",
-    "build": "npm run copy-designer && DISABLE_ESLINT_PLUGIN=true react-scripts build"
+    "start": "react-scripts start",
+    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build"
   },
   "proxy": "http://127.0.0.1:8080/",
   "eslintConfig": {

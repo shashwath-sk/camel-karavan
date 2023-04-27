@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, { createRef, RefObject } from 'react';
 import {
     Drawer,
     DrawerPanelContent,
@@ -22,10 +22,6 @@ import {
     DrawerContentBody,
     Button, Modal,
     PageSection,
-    Menu,
-    MenuContent,
-    MenuList,
-    MenuItem,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './RouteDesigner.css';
@@ -40,6 +36,7 @@ import { CamelDisplayUtil } from "karavan-core/lib/api/CamelDisplayUtil";
 import { RouteDesignerLogic } from "./RouteDesignerLogic";
 import RoutesTab from './RoutesTabs';
 import DropDownWrapper from './DropDownWrapper';
+import html2canvas from 'html2canvas';
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
@@ -77,6 +74,24 @@ export interface RouteDesignerState {
 
 export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
 
+    private sourceRef: RefObject<HTMLDivElement>;
+    private targetRef: RefObject<HTMLDivElement>;
+
+    constructor(props: Props) {
+        super(props);
+        this.sourceRef = createRef();
+        this.targetRef = createRef();
+    }
+
+    //   handleConvertToImage = () => {
+    //     html2canvas(this.sourceRef.current as HTMLDivElement).then((canvas) => {
+    //       const image = canvas.toDataURL();
+    //       (this.targetRef.current as HTMLDivElement).style.backgroundImage = `url(${image})`;
+    //       const exampleImg  = document.getElementById('thumbnai-img') as HTMLImageElement;
+    //       exampleImg.setAttribute("src", image);
+    //     });
+    //   };
+
     public state: RouteDesignerState = {
         logic: new RouteDesignerLogic(this),
         integration: CamelDisplayUtil.setIntegrationVisibility(this.props.integration, undefined),
@@ -105,17 +120,22 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
     // and then pass this function to RoutesTab
     handleRoutesCloseClick = (selectedRoutes: number[]) => {
         this.setState({ selectedRoutes: selectedRoutes });
-        this.handleActiveTabKey(selectedRoutes[selectedRoutes.length - 1]);
+        // this.handleActiveTabKey(selectedRoutes[selectedRoutes.length - 1]);
     };
 
     handleActiveTabKey = (activeTabKey: number) => {
+        console.log('before activeTabKey: ' + this.state.activeTabKey)
         this.setState({ activeTabKey: activeTabKey });
+        console.log('after activeTabKey: ' + this.state.activeTabKey)
     };
     handleMenuListClick = (index: number) => {
         this.setState({ activeTabKey: index });
     };
     setRouteView = (routeView: string) => {
         this.setState({ routeView: routeView });
+    };
+    setSelectedRoutes = (selectedRoutes: number[]) => {
+        this.setState({ selectedRoutes: selectedRoutes });
     };
 
     componentDidMount() {
@@ -139,6 +159,14 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<RouteDesignerState>, snapshot?: any) => {
+        if(prevState.activeTabKey !== this.state.activeTabKey)
+            html2canvas(this.sourceRef.current as HTMLDivElement).then((canvas) => {
+                const image = canvas.toDataURL();
+                (this.targetRef.current as HTMLDivElement).style.backgroundImage = `url(${image})`;
+                const exampleImg = document.getElementById(this.state.selectedRoutes[this.state.activeTabKey].toString()) as HTMLImageElement;
+                exampleImg.setAttribute("src", image);
+            });
+
         return this.state.logic.componentDidUpdate(prevState, snapshot);
     };
 
@@ -197,7 +225,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         const routeConfigurations = CamelUi.getRouteConfigurations(integration);
         return (
             <div ref={this.state.printerRef} className="graph">
-                {(this.state.activeTabKey !== -1  || this.state.routeView === 'View All' ) &&
+                {(this.state.activeTabKey !== -1 || this.state.routeView === 'View All') &&
                     <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top + 10} left={left - 215} integration={integration} />
                     // <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top+10} left={left} integration={integration}/>
                 }
@@ -207,29 +235,31 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                     </div>
                     {
                         this.state.routeView !== 'View All' &&
-                        <Menu className='scrollable' style={{ zIndex: 1 }}>
-                            <MenuContent menuHeight='90%'>
-                                <MenuList>
-                                    {
-                                        routes?.map((route: CamelElement, index: number) => (
-                                            <MenuItem key={index} itemId={index} className='single-thumbnail'
-                                                onClick={
-                                                    (event) => {
-                                                        console.log('index: ', index);
-                                                        if (!this.state.selectedRoutes.includes(index)) {
-                                                            this.setState({ selectedRoutes: [...this.state.selectedRoutes, index] });
-                                                            this.handleActiveTabKey(this.state.selectedRoutes.length - 1);
-                                                            return;
-                                                        }
-                                                        this.handleActiveTabKey(this.state.selectedRoutes.indexOf(index));
-                                                    }
-                                                } >
-                                            </MenuItem>
-                                        ))
-                                    }
-                                </MenuList>
-                            </MenuContent>
-                        </Menu>
+                        <div className='thumbnail-body scrollable' style={{zIndex: 1}}>
+                            {
+                                routes.map((route: CamelElement, index: number) => (
+                                    <div key={index} className='single-thumbnail' onClick={(event) => {
+                                        html2canvas(this.sourceRef.current as HTMLDivElement).then((canvas) => {
+                                            const image = canvas.toDataURL();
+                                            (this.targetRef.current as HTMLDivElement).style.backgroundImage = `url(${image})`;
+                                            const exampleImg = document.getElementById(index.toString()) as HTMLImageElement;
+                                            exampleImg.setAttribute("src", image);
+                                        });
+                                        if(this.state.selectedRoutes.includes(index)){
+                                            this.setState({ activeTabKey: this.state.selectedRoutes.indexOf(index)})
+                                        }
+                                        else{
+                                            this.setState({ selectedRoutes: [...this.state.selectedRoutes, index] });
+                                        }
+                                        this.handleActiveTabKey(this.state.selectedRoutes.indexOf(index));
+                                    }}>
+                                        <img id={index.toString()} className='single-thumbnail-image' src={''} alt='samim' />
+                                    </div>
+                                ))
+
+                            }
+                            </div>
+
                     }
                 </div>
                 <div className="flows" data-click="FLOWS" onClick={event => this.state.logic.unselectElement(event)}
@@ -245,33 +275,37 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                             />
                         </div>
                     }
-                    {routeConfigurations?.map((routeConfiguration, index: number) => (
-                        <DslElement key={routeConfiguration.uuid + key}
-                            integration={integration}
-                            openSelector={this.state.logic.openSelector}
-                            deleteElement={this.state.logic.showDeleteConfirmation}
-                            selectElement={this.state.logic.selectElement}
-                            moveElement={this.state.logic.moveElement}
-                            selectedUuid={selectedUuids}
-                            inSteps={false}
-                            position={index}
-                            step={routeConfiguration}
-                            parent={undefined} />
-                    ))}
-                    {routes?.map((route: any, index: number) => (
-                        (index === this.state.selectedRoutes[this.state.activeTabKey] || this.state.routeView === 'View All') &&
-                        <DslElement key={route.uuid + key}
-                            integration={integration}
-                            openSelector={this.state.logic.openSelector}
-                            deleteElement={this.state.logic.showDeleteConfirmation}
-                            selectElement={this.state.logic.selectElement}
-                            moveElement={this.state.logic.moveElement}
-                            selectedUuid={selectedUuids}
-                            inSteps={false}
-                            position={index}
-                            step={route}
-                            parent={undefined} />
-                    ))}
+                    <div ref={this.targetRef}>
+                        {routeConfigurations?.map((routeConfiguration, index: number) => (
+                            <DslElement key={routeConfiguration.uuid + key}
+                                integration={integration}
+                                openSelector={this.state.logic.openSelector}
+                                deleteElement={this.state.logic.showDeleteConfirmation}
+                                selectElement={this.state.logic.selectElement}
+                                moveElement={this.state.logic.moveElement}
+                                selectedUuid={selectedUuids}
+                                inSteps={false}
+                                position={index}
+                                step={routeConfiguration}
+                                parent={undefined} />
+                        ))}
+                    </div>
+                    <div ref={this.sourceRef}>
+                        {routes?.map((route: any, index: number) => (
+                            (index === this.state.selectedRoutes[this.state.activeTabKey] || this.state.routeView === 'View All') &&
+                            <DslElement key={route.uuid + key}
+                                integration={integration}
+                                openSelector={this.state.logic.openSelector}
+                                deleteElement={this.state.logic.showDeleteConfirmation}
+                                selectElement={this.state.logic.selectElement}
+                                moveElement={this.state.logic.moveElement}
+                                selectedUuid={selectedUuids}
+                                inSteps={false}
+                                position={index}
+                                step={route}
+                                parent={undefined} />
+                        ))}
+                    </div>
                     <div className="add-flow">
                         <Button
                             variant={routes.length === 0 ? 'primary' : 'secondary'}
