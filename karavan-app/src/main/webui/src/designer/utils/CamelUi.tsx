@@ -72,7 +72,6 @@ const StepElements: string[] = [
     "ThreadsDefinition",
     "ThrottleDefinition",
     "ThrowExceptionDefinition",
-    "ToDefinition",
     "ToDynamicDefinition",
     "TransformDefinition",
     "TransactedDefinition",

@@ -23,6 +23,7 @@ import {
     Button, Modal,
     PageSection,
 } from '@patternfly/react-core';
+import html2canvas from 'html2canvas';
 import '../karavan.css';
 import './RouteDesigner.css';
 import { DslSelector } from "./DslSelector";
@@ -36,7 +37,6 @@ import { CamelDisplayUtil } from "karavan-core/lib/api/CamelDisplayUtil";
 import { RouteDesignerLogic } from "./RouteDesignerLogic";
 import RoutesTab from './RoutesTabs';
 import DropDownWrapper from './DropDownWrapper';
-import html2canvas from 'html2canvas';
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
@@ -70,6 +70,8 @@ export interface RouteDesignerState {
     selectedRoutes: number[]
     activeTabKey: number
     routeView: string
+    routeThambnailarr: any
+    zoom: number
 }
 
 export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
@@ -81,16 +83,9 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         super(props);
         this.sourceRef = createRef();
         this.targetRef = createRef();
-    }
-
-    //   handleConvertToImage = () => {
-    //     html2canvas(this.sourceRef.current as HTMLDivElement).then((canvas) => {
-    //       const image = canvas.toDataURL();
-    //       (this.targetRef.current as HTMLDivElement).style.backgroundImage = `url(${image})`;
-    //       const exampleImg  = document.getElementById('thumbnai-img') as HTMLImageElement;
-    //       exampleImg.setAttribute("src", image);
-    //     });
-    //   };
+        // this.state = { zoom: 1 };
+        this.handleWheel = this.handleWheel.bind(this);
+      }
 
     public state: RouteDesignerState = {
         logic: new RouteDesignerLogic(this),
@@ -112,8 +107,18 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         propertyOnly: false,
         selectedRoutes: [],
         activeTabKey: -1,
-        routeView: 'View All'
+        routeView: 'View All',
+        routeThambnailarr: {},
+        zoom: 1
     };
+
+    handleWheel(e: any) {
+        e.preventDefault();
+        const direction1 = e.deltaY > 0 ? -1 : 1;
+        const direction2 = e.deltaX > 0 ? -1 : 1;
+        const newZoom = this.state.zoom + (direction1 * 0.1) + (direction2 * 0.1);
+        this.setState({ zoom: newZoom });
+      }
 
     // function handleRoutesTabCLick which will be passed to RoutesTab 
     // and when set the state in case a new tab is added or removed
@@ -223,11 +228,14 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         const { selectedUuids, integration, key, width, height, top, left } = this.state;
         const routes = CamelUi.getRoutes(integration);
         const routeConfigurations = CamelUi.getRouteConfigurations(integration);
+        const contentStyle = {
+            transform: `scale(${this.state.zoom})`,
+            transformOrigin: '0 0',
+          };
         return (
             <div ref={this.state.printerRef} className="graph">
                 {(this.state.activeTabKey !== -1 || this.state.routeView === 'View All') &&
                     <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top + 10} left={left - 215} integration={integration} />
-                    // <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top+10} left={left} integration={integration}/>
                 }
                 <div className='thumbnail-section'>
                     <div className='thumbnail-header' style={{ zIndex: 100 }}>
@@ -275,36 +283,44 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                             />
                         </div>
                     }
-                    <div ref={this.targetRef}>
-                        {routeConfigurations?.map((routeConfiguration, index: number) => (
-                            <DslElement key={routeConfiguration.uuid + key}
-                                integration={integration}
-                                openSelector={this.state.logic.openSelector}
-                                deleteElement={this.state.logic.showDeleteConfirmation}
-                                selectElement={this.state.logic.selectElement}
-                                moveElement={this.state.logic.moveElement}
-                                selectedUuid={selectedUuids}
-                                inSteps={false}
-                                position={index}
-                                step={routeConfiguration}
-                                parent={undefined} />
-                        ))}
+                    <div onWheel={this.handleWheel}>
+                    <div style={contentStyle}>
+                   <div ref={this.targetRef}>
+                    {routeConfigurations?.map((routeConfiguration, index: number) => (
+                        <DslElement key={routeConfiguration.uuid + key}
+                            integration={integration}
+                            openSelector={this.state.logic.openSelector}
+                            deleteElement={this.state.logic.showDeleteConfirmation}
+                            selectElement={this.state.logic.selectElement}
+                            moveElement={this.state.logic.moveElement}
+                            selectedUuid={selectedUuids}
+                            inSteps={false}
+                            position={index}
+                            step={routeConfiguration}
+                            parent={undefined} />
+                    ))}
                     </div>
+                    </div>
+                    </div>
+                    <div onWheel={this.handleWheel}>
+                    <div style={contentStyle}>
                     <div ref={this.sourceRef}>
-                        {routes?.map((route: any, index: number) => (
-                            (index === this.state.selectedRoutes[this.state.activeTabKey] || this.state.routeView === 'View All') &&
-                            <DslElement key={route.uuid + key}
-                                integration={integration}
-                                openSelector={this.state.logic.openSelector}
-                                deleteElement={this.state.logic.showDeleteConfirmation}
-                                selectElement={this.state.logic.selectElement}
-                                moveElement={this.state.logic.moveElement}
-                                selectedUuid={selectedUuids}
-                                inSteps={false}
-                                position={index}
-                                step={route}
-                                parent={undefined} />
-                        ))}
+                    {routes?.map((route: any, index: number) => (
+                        (index === this.state.selectedRoutes[this.state.activeTabKey] || this.state.routeView === 'View All') &&
+                        <DslElement key={route.uuid + key}
+                            integration={integration}
+                            openSelector={this.state.logic.openSelector}
+                            deleteElement={this.state.logic.showDeleteConfirmation}
+                            selectElement={this.state.logic.selectElement}
+                            moveElement={this.state.logic.moveElement}
+                            selectedUuid={selectedUuids}
+                            inSteps={false}
+                            position={index}
+                            step={route}
+                            parent={undefined} />
+                    ))}
+                    </div>
+                    </div>
                     </div>
                     <div className="add-flow">
                         <Button
@@ -329,7 +345,9 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                 <div className="dsl-page-columns">
                     <Drawer isExpanded isInline>
                         <DrawerContent panelContent={this.getPropertiesPanel()}>
-                            <DrawerContentBody>{this.getGraph()}</DrawerContentBody>
+                            <DrawerContentBody>
+                                {this.getGraph()}
+                            </DrawerContentBody>
                         </DrawerContent>
                     </Drawer>
                 </div>
