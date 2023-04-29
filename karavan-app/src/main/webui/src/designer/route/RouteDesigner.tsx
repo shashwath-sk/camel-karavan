@@ -24,9 +24,6 @@ import {
     PageSection,
 } from '@patternfly/react-core';
 import html2canvas from 'html2canvas';
-import KameletsIcon from "@patternfly/react-icons/dist/js/icons/registry-icon";
-import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
-import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import '../karavan.css';
 import './RouteDesigner.css';
 import { DslSelector } from "./DslSelector";
@@ -40,6 +37,7 @@ import { CamelDisplayUtil } from "karavan-core/lib/api/CamelDisplayUtil";
 import { RouteDesignerLogic } from "./RouteDesignerLogic";
 import RoutesTab from './RoutesTabs';
 import DropDownWrapper from './DropDownWrapper';
+import { IntegrationTools } from './IntegrationTools';
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
@@ -240,26 +238,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                 {(this.state.activeTabKey !== -1 || this.state.routeView === 'View All') &&
                     <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top + 10} left={left - 160} integration={integration} />
                 }
-                <div className='tools-sec'>
-                    <div className='tools-tab'>
-                        {/* <DropDownWrapper inputArray={['View All', 'View Tabwise']} val={this.state.routeView} setVal={this.setRouteView} /> */}
-                        <div className='eipIcon'>
-                            <EipIcon/>
-                        </div>
-                        <div className='kameletsIcon'>
-                            <KameletsIcon />
-                        </div>
-                        <div className='componentsIcon'>
-                            <ComponentsIcon />
-                        </div>
-                    </div>
-                    {/* <div>
-                        <hr/>
-                    </div> */}
-                    <div className='tools-list'>
-
-                    </div>
-                </div>
+                <IntegrationTools />
                 <div className="flows" data-click="FLOWS" onClick={event => this.state.logic.unselectElement(event)}
                     ref={el => this.state.logic.onResizePage(el)}>
                     {this.state.routeView !== 'View All' &&

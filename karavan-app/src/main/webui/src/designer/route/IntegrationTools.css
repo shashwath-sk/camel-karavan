@@ -1,0 +1,14 @@
+.tools-tab{
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 10px;
+  font-size: 24px;
+  border-right-color: gray;
+}
+
+.tools-sec{
+  display: flex;
+  border: 1px solid;
+  border-color: transparent #d2d2d2 transparent transparent;
+}
