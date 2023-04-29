@@ -37,7 +37,7 @@ export const DropDownWrapper= (props:Props) => {
     <Dropdown
       onSelect={onSelect}
       toggle={
-        <DropdownToggle id="toggle-primary" toggleVariant="primary" onToggle={onToggle} style={{width: '180px'}}>
+        <DropdownToggle id="toggle-primary" toggleVariant="primary" onToggle={onToggle} style={{width: '150px'}}>
           {props.val}
         </DropdownToggle>
       }
