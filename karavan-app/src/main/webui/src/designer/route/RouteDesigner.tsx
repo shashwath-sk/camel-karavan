@@ -235,41 +235,8 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         return (
             <div ref={this.state.printerRef} className="graph">
                 {(this.state.activeTabKey !== -1 || this.state.routeView === 'View All') &&
-                    <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top + 10} left={left - 215} integration={integration} />
+                    <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top + 10} left={left - 160} integration={integration} />
                 }
-                <div className='thumbnail-section'>
-                    <div className='thumbnail-header' style={{ zIndex: 100 }}>
-                        <DropDownWrapper inputArray={['View All', 'View Tabwise']} val={this.state.routeView} setVal={this.setRouteView} />
-                    </div>
-                    {
-                        this.state.routeView !== 'View All' &&
-                        <div className='thumbnail-body scrollable' style={{zIndex: 1}}>
-                            {
-                                routes.map((route: CamelElement, index: number) => (
-                                    <div key={index} className='single-thumbnail' onClick={(event) => {
-                                        html2canvas(this.sourceRef.current as HTMLDivElement).then((canvas) => {
-                                            const image = canvas.toDataURL();
-                                            (this.targetRef.current as HTMLDivElement).style.backgroundImage = `url(${image})`;
-                                            const exampleImg = document.getElementById(index.toString()) as HTMLImageElement;
-                                            exampleImg.setAttribute("src", image);
-                                        });
-                                        if(this.state.selectedRoutes.includes(index)){
-                                            this.setState({ activeTabKey: this.state.selectedRoutes.indexOf(index)})
-                                        }
-                                        else{
-                                            this.setState({ selectedRoutes: [...this.state.selectedRoutes, index] });
-                                        }
-                                        this.handleActiveTabKey(this.state.selectedRoutes.indexOf(index));
-                                    }}>
-                                        <img id={index.toString()} className='single-thumbnail-image' src={''} alt='samim' />
-                                    </div>
-                                ))
-
-                            }
-                            </div>
-
-                    }
-                </div>
                 <div className="flows" data-click="FLOWS" onClick={event => this.state.logic.unselectElement(event)}
                     ref={el => this.state.logic.onResizePage(el)}>
                     {this.state.routeView !== 'View All' &&
@@ -335,7 +302,37 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                         </Button>
                     </div>
                 </div>
-                {/* </div> */}
+                <div className='thumbnail-section'>
+                    <div className='thumbnail-header' style={{ zIndex: 100 }}>
+                        <DropDownWrapper inputArray={['View All', 'View Tabwise']} val={this.state.routeView} setVal={this.setRouteView} />
+                    </div>
+                    {
+                        this.state.routeView !== 'View All' &&
+                        <div className='thumbnail-body scrollable' style={{zIndex: 1}}>
+                            {
+                                routes.map((route: CamelElement, index: number) => (
+                                    <div key={index} className='single-thumbnail' onClick={(event) => {
+                                        html2canvas(this.sourceRef.current as HTMLDivElement).then((canvas) => {
+                                            const image = canvas.toDataURL();
+                                            (this.targetRef.current as HTMLDivElement).style.backgroundImage = `url(${image})`;
+                                            const exampleImg = document.getElementById(index.toString()) as HTMLImageElement;
+                                            exampleImg.setAttribute("src", image);
+                                        });
+                                        if(this.state.selectedRoutes.includes(index)){
+                                            this.setState({ activeTabKey: this.state.selectedRoutes.indexOf(index)})
+                                        }
+                                        else{
+                                            this.setState({ selectedRoutes: [...this.state.selectedRoutes, index] });
+                                        }
+                                        this.handleActiveTabKey(this.state.selectedRoutes.indexOf(index));
+                                    }}>
+                                        <img id={index.toString()} className='single-thumbnail-image' src={''} alt='samim' />
+                                    </div>
+                                ))
+                            }
+                            </div>
+                    }
+                </div>
             </div>);
     }
 
