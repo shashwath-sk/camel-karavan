@@ -37,6 +37,7 @@ import { CamelDisplayUtil } from "karavan-core/lib/api/CamelDisplayUtil";
 import { RouteDesignerLogic } from "./RouteDesignerLogic";
 import RoutesTab from './RoutesTabs';
 import DropDownWrapper from './DropDownWrapper';
+import { Rnd } from 'react-rnd';
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
@@ -85,7 +86,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         this.targetRef = createRef();
         // this.state = { zoom: 1 };
         this.handleWheel = this.handleWheel.bind(this);
-      }
+    }
 
     public state: RouteDesignerState = {
         logic: new RouteDesignerLogic(this),
@@ -114,11 +115,11 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
 
     handleWheel(e: any) {
         e.preventDefault();
-        const direction1 = e.deltaY > 0 ? -1 : 1;
-        const direction2 = e.deltaX > 0 ? -1 : 1;
-        const newZoom = this.state.zoom + (direction1 * 0.1) + (direction2 * 0.1);
-        this.setState({ zoom: newZoom });
-      }
+        // const direction1 = e.deltaY > 0 ? -1 : 1;
+        // const direction2 = e.deltaX > 0 ? -1 : 1;
+        // const newZoom = this.state.zoom + (direction1 * 0.1) + (direction2 * 0.1);
+        // this.setState({ zoom: newZoom });
+    }
 
     // function handleRoutesTabCLick which will be passed to RoutesTab 
     // and when set the state in case a new tab is added or removed
@@ -164,7 +165,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<RouteDesignerState>, snapshot?: any) => {
-        if(prevState.activeTabKey !== this.state.activeTabKey)
+        if (prevState.activeTabKey !== this.state.activeTabKey)
             html2canvas(this.sourceRef.current as HTMLDivElement).then((canvas) => {
                 const image = canvas.toDataURL();
                 (this.targetRef.current as HTMLDivElement).style.backgroundImage = `url(${image})`;
@@ -231,7 +232,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         const contentStyle = {
             transform: `scale(${this.state.zoom})`,
             transformOrigin: '0 0',
-          };
+        };
         return (
             <div ref={this.state.printerRef} className="graph">
                 {(this.state.activeTabKey !== -1 || this.state.routeView === 'View All') &&
@@ -243,7 +244,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                     </div>
                     {
                         this.state.routeView !== 'View All' &&
-                        <div className='thumbnail-body scrollable' style={{zIndex: 1}}>
+                        <div className='thumbnail-body scrollable' style={{ zIndex: 1 }}>
                             {
                                 routes.map((route: CamelElement, index: number) => (
                                     <div key={index} className='single-thumbnail' onClick={(event) => {
@@ -253,10 +254,10 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                                             const exampleImg = document.getElementById(index.toString()) as HTMLImageElement;
                                             exampleImg.setAttribute("src", image);
                                         });
-                                        if(this.state.selectedRoutes.includes(index)){
-                                            this.setState({ activeTabKey: this.state.selectedRoutes.indexOf(index)})
+                                        if (this.state.selectedRoutes.includes(index)) {
+                                            this.setState({ activeTabKey: this.state.selectedRoutes.indexOf(index) })
                                         }
-                                        else{
+                                        else {
                                             this.setState({ selectedRoutes: [...this.state.selectedRoutes, index] });
                                         }
                                         this.handleActiveTabKey(this.state.selectedRoutes.indexOf(index));
@@ -266,7 +267,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                                 ))
 
                             }
-                            </div>
+                        </div>
 
                     }
                 </div>
@@ -284,43 +285,68 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                         </div>
                     }
                     <div onWheel={this.handleWheel}>
-                    <div style={contentStyle}>
-                   <div ref={this.targetRef}>
-                    {routeConfigurations?.map((routeConfiguration, index: number) => (
-                        <DslElement key={routeConfiguration.uuid + key}
-                            integration={integration}
-                            openSelector={this.state.logic.openSelector}
-                            deleteElement={this.state.logic.showDeleteConfirmation}
-                            selectElement={this.state.logic.selectElement}
-                            moveElement={this.state.logic.moveElement}
-                            selectedUuid={selectedUuids}
-                            inSteps={false}
-                            position={index}
-                            step={routeConfiguration}
-                            parent={undefined} />
-                    ))}
-                    </div>
-                    </div>
+                        <div style={contentStyle}>
+                            <div ref={this.targetRef}>
+                                {routeConfigurations?.map((routeConfiguration, index: number) => (
+                                    <DslElement key={routeConfiguration.uuid + key}
+                                        integration={integration}
+                                        openSelector={this.state.logic.openSelector}
+                                        deleteElement={this.state.logic.showDeleteConfirmation}
+                                        selectElement={this.state.logic.selectElement}
+                                        moveElement={this.state.logic.moveElement}
+                                        selectedUuid={selectedUuids}
+                                        inSteps={false}
+                                        position={index}
+                                        step={routeConfiguration}
+                                        parent={undefined} />
+                                ))}
+                            </div>
+                        </div>
                     </div>
                     <div onWheel={this.handleWheel}>
-                    <div style={contentStyle}>
-                    <div ref={this.sourceRef}>
-                    {routes?.map((route: any, index: number) => (
-                        (index === this.state.selectedRoutes[this.state.activeTabKey] || this.state.routeView === 'View All') &&
-                        <DslElement key={route.uuid + key}
-                            integration={integration}
-                            openSelector={this.state.logic.openSelector}
-                            deleteElement={this.state.logic.showDeleteConfirmation}
-                            selectElement={this.state.logic.selectElement}
-                            moveElement={this.state.logic.moveElement}
-                            selectedUuid={selectedUuids}
-                            inSteps={false}
-                            position={index}
-                            step={route}
-                            parent={undefined} />
-                    ))}
-                    </div>
-                    </div>
+                        <div style={contentStyle}>
+                            <div ref={this.sourceRef}>
+                                {
+                                    this.state.routeView === 'View All' ?
+                                        routes?.map((route: any, index: number) => (
+                                            <DslElement key={route.uuid + key}
+                                                integration={integration}
+                                                openSelector={this.state.logic.openSelector}
+                                                deleteElement={this.state.logic.showDeleteConfirmation}
+                                                selectElement={this.state.logic.selectElement}
+                                                moveElement={this.state.logic.moveElement}
+                                                selectedUuid={selectedUuids}
+                                                inSteps={false}
+                                                position={index}
+                                                step={route}
+                                                parent={undefined} />
+                                        ))
+                                        :
+                                        routes?.map((route: any, index: number) => (
+                                            index === this.state.selectedRoutes[this.state.activeTabKey] &&
+                                            <Rnd key={route.uuid + key} default={{
+                                                x: window.innerWidth / 4 - 100,
+                                                y: 100,
+                                                width: 0,
+                                                height: 0,
+                                            }}
+                                            style={{justifyContent: 'center', alignItems: 'center'}}
+                                             >
+                                                <DslElement key={route.uuid + key}
+                                                    integration={integration}
+                                                    openSelector={this.state.logic.openSelector}
+                                                    deleteElement={this.state.logic.showDeleteConfirmation}
+                                                    selectElement={this.state.logic.selectElement}
+                                                    moveElement={this.state.logic.moveElement}
+                                                    selectedUuid={selectedUuids}
+                                                    inSteps={false}
+                                                    position={index}
+                                                    step={route}
+                                                    parent={undefined} />
+                                            </Rnd>
+                                        ))}
+                            </div>
+                        </div>
                     </div>
                     <div className="add-flow">
                         <Button
