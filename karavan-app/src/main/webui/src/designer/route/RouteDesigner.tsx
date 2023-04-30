@@ -22,6 +22,8 @@ import {
     DrawerContentBody,
     Button, Modal,
     PageSection,
+    Flex,
+    FlexItem,
 } from '@patternfly/react-core';
 import html2canvas from 'html2canvas';
 import '../karavan.css';
@@ -37,7 +39,9 @@ import { CamelDisplayUtil } from "karavan-core/lib/api/CamelDisplayUtil";
 import { RouteDesignerLogic } from "./RouteDesignerLogic";
 import RoutesTab from './RoutesTabs';
 import DropDownWrapper from './DropDownWrapper';
-import { Rnd } from 'react-rnd';
+import Draggable from 'react-draggable';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlassPlus, faMagnifyingGlassMinus, faArrowsUpDownLeftRight } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
@@ -73,6 +77,10 @@ export interface RouteDesignerState {
     routeView: string
     routeThambnailarr: any
     zoom: number
+    isDraggable: boolean
+    ongoingDragging: boolean
+    cursorCSS: string
+    mousePointerCoordinates: { x: number, y: number }
 }
 
 export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
@@ -110,15 +118,17 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         activeTabKey: -1,
         routeView: 'View All',
         routeThambnailarr: {},
-        zoom: 1
+        zoom: 1,
+        isDraggable: false,
+        ongoingDragging: false,
+        cursorCSS: 'auto',
+        mousePointerCoordinates: { x: 0, y: 0 }
     };
 
-    handleWheel(e: any) {
+    handleWheel(e: any, zoom: number) {
         e.preventDefault();
-        // const direction1 = e.deltaY > 0 ? -1 : 1;
-        // const direction2 = e.deltaX > 0 ? -1 : 1;
-        // const newZoom = this.state.zoom + (direction1 * 0.1) + (direction2 * 0.1);
-        // this.setState({ zoom: newZoom });
+        const newZoom = this.state.zoom + (zoom * 0.1) + (zoom * 0.1);
+        this.setState({ zoom: newZoom });
     }
 
     // function handleRoutesTabCLick which will be passed to RoutesTab 
@@ -231,20 +241,20 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         const routeConfigurations = CamelUi.getRouteConfigurations(integration);
         const contentStyle = {
             transform: `scale(${this.state.zoom})`,
-            transformOrigin: '0 0',
+            transformOrigin: `${this.state.mousePointerCoordinates.x} ${this.state.mousePointerCoordinates.y} `,
         };
         return (
             <div ref={this.state.printerRef} className="graph">
-                {(this.state.activeTabKey !== -1 || this.state.routeView === 'View All') &&
+                {(this.state.activeTabKey !== -1 || this.state.routeView === 'View All') && !this.state.ongoingDragging &&
                     <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top + 10} left={left - 215} integration={integration} />
                 }
-                <div className='thumbnail-section'>
+                <div className='thumbnail-section' style={{ zIndex: 100 }}>
                     <div className='thumbnail-header' style={{ zIndex: 100 }}>
                         <DropDownWrapper inputArray={['View All', 'View Tabwise']} val={this.state.routeView} setVal={this.setRouteView} />
                     </div>
                     {
                         this.state.routeView !== 'View All' &&
-                        <div className='thumbnail-body scrollable' style={{ zIndex: 1 }}>
+                        <div className='thumbnail-body scrollable' style={{ zIndex: 20 }}>
                             {
                                 routes.map((route: CamelElement, index: number) => (
                                     <div key={index} className='single-thumbnail' onClick={(event) => {
@@ -271,7 +281,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
 
                     }
                 </div>
-                <div className="flows" data-click="FLOWS" onClick={event => this.state.logic.unselectElement(event)}
+                <div className="flows" data-click="FLOWS" onClick={event => this.state.logic.unselectElement(event)} style={{ zIndex: 10 }}
                     ref={el => this.state.logic.onResizePage(el)}>
                     {this.state.routeView !== 'View All' &&
                         <div className='routes'>
@@ -282,9 +292,32 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                                 activeTabKey={this.state.activeTabKey}
                                 handleActiveTabKey={this.handleActiveTabKey}
                             />
+                            <Flex spaceItems={{ default: 'spaceItemsNone' }} justifyContent={{ default: 'justifyContentFlexEnd' }} style={{ marginTop: '2px', marginRight: '2px', gap: '2px' }}>
+                                <FlexItem>
+                                    <Button variant={this.state.cursorCSS === 'zoom-in'? 'primary' :'secondary'} onClick={() => this.setState({ isDraggable: false ,cursorCSS: this.state.cursorCSS === 'zoom-in'? 'auto' : 'zoom-in' })}><FontAwesomeIcon icon={faMagnifyingGlassPlus} /></Button>
+                                </FlexItem>
+                                <FlexItem>
+                                    <Button variant={this.state.cursorCSS === 'zoom-out'? 'primary' :'secondary'} onClick={() => this.setState({ isDraggable: false ,cursorCSS: this.state.cursorCSS === 'zoom-out'? 'auto' :'zoom-out' })}><FontAwesomeIcon icon={faMagnifyingGlassMinus} /></Button>
+                                </FlexItem>
+                                <FlexItem>
+                                    <Button variant={this.state.isDraggable && this.state.cursorCSS === 'all-scroll' ? 'primary' : 'secondary'} onClick={() => this.setState({ isDraggable: !this.state.isDraggable, cursorCSS: this.state.cursorCSS === 'all-scroll'? 'auto' :'all-scroll' })}><FontAwesomeIcon icon={faArrowsUpDownLeftRight} /></Button>
+                                </FlexItem>
+                            </Flex>
                         </div>
                     }
-                    <div onWheel={this.handleWheel}>
+                    <div className="add-flow">
+                        <Button
+                            variant={routes.length === 0 ? 'primary' : 'secondary'}
+                            icon={<PlusIcon />}
+                            onClick={e => this.state.logic.openSelector(undefined, undefined)}>Create route
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            icon={<PlusIcon />}
+                            onClick={e => this.state.logic.createRouteConfiguration()}>Create configuration
+                        </Button>
+                    </div>
+                    <div >
                         <div style={contentStyle}>
                             <div ref={this.targetRef}>
                                 {routeConfigurations?.map((routeConfiguration, index: number) => (
@@ -303,7 +336,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                             </div>
                         </div>
                     </div>
-                    <div onWheel={this.handleWheel}>
+                    <div style={{ zIndex: 10 }}>
                         <div style={contentStyle}>
                             <div ref={this.sourceRef}>
                                 {
@@ -324,44 +357,42 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                                         :
                                         routes?.map((route: any, index: number) => (
                                             index === this.state.selectedRoutes[this.state.activeTabKey] &&
-                                            <Rnd key={route.uuid + key} default={{
-                                                x: window.innerWidth / 4 - 100,
-                                                y: 100,
-                                                width: 0,
-                                                height: 0,
-                                            }}
-                                            style={{justifyContent: 'center', alignItems: 'center'}}
-                                             >
-                                                <DslElement key={route.uuid + key}
-                                                    integration={integration}
-                                                    openSelector={this.state.logic.openSelector}
-                                                    deleteElement={this.state.logic.showDeleteConfirmation}
-                                                    selectElement={this.state.logic.selectElement}
-                                                    moveElement={this.state.logic.moveElement}
-                                                    selectedUuid={selectedUuids}
-                                                    inSteps={false}
-                                                    position={index}
-                                                    step={route}
-                                                    parent={undefined} />
-                                            </Rnd>
+                                            <Draggable axis='both' disabled={!this.state.isDraggable}
+                                                onStart={() => this.setState({ ongoingDragging: true })}
+                                                onStop={() => this.setState({ ongoingDragging: false })}
+                                                bounds={{ top: 10 }} >
+                                                <div style={{ zIndex: 1, cursor: this.state.cursorCSS }}
+                                                    onClick={(event) => {
+                                                        const x = event.clientX;
+                                                        const y = event.clientY;
+                                                        if (this.state.cursorCSS === 'zoom-in') {
+                                                            this.setState({ mousePointerCoordinates: { x: x, y: y } });
+                                                            this.handleWheel(event, 1);
+                                                        }
+                                                        else if (this.state.cursorCSS === 'zoom-out') {
+                                                            this.setState({ mousePointerCoordinates: { x: x, y: y } });
+                                                            this.handleWheel(event, -1);
+                                                        }
+                                                    }} >
+
+                                                    <DslElement key={route.uuid + key}
+                                                        integration={integration}
+                                                        openSelector={this.state.logic.openSelector}
+                                                        deleteElement={this.state.logic.showDeleteConfirmation}
+                                                        selectElement={this.state.logic.selectElement}
+                                                        moveElement={this.state.logic.moveElement}
+                                                        selectedUuid={selectedUuids}
+                                                        inSteps={false}
+                                                        position={index}
+                                                        step={route}
+                                                        parent={undefined} />
+                                                </div>
+                                            </Draggable>
                                         ))}
                             </div>
                         </div>
                     </div>
-                    <div className="add-flow">
-                        <Button
-                            variant={routes.length === 0 ? 'primary' : 'secondary'}
-                            icon={<PlusIcon />}
-                            onClick={e => this.state.logic.openSelector(undefined, undefined)}>Create route
-                        </Button>
-                        <Button
-                            variant="secondary"
-                            icon={<PlusIcon />}
-                            onClick={e => this.state.logic.createRouteConfiguration()}>Create configuration
-                        </Button>
-                    </div>
                 </div>
-                {/* </div> */}
             </div>);
     }
 
