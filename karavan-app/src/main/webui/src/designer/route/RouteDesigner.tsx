@@ -225,6 +225,16 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         );
     }
 
+    getIntegrationTools() {
+        return (
+            <DrawerPanelContent onResize={width => this.setState({ key: Math.random().toString(1) })}
+                style={{ transform: 'initial' }} isResizable hasNoBorder defaultSize={'400px'}
+                maxSize={'800px'} minSize={'300px'}>
+                <IntegrationTools />
+            </DrawerPanelContent>
+        );
+    }
+
     getGraph() {
         const { selectedUuids, integration, key, width, height, top, left } = this.state;
         const routes = CamelUi.getRoutes(integration);
@@ -236,9 +246,8 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         return (
             <div ref={this.state.printerRef} className="graph">
                 {(this.state.activeTabKey !== -1 || this.state.routeView === 'View All') &&
-                    <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top + 10} left={left - 160} integration={integration} />
+                    <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top + 10} left={left - 0} integration={integration} />
                 }
-                <IntegrationTools />
                 <div className="flows" data-click="FLOWS" onClick={event => this.state.logic.unselectElement(event)}
                     ref={el => this.state.logic.onResizePage(el)}>
                     {this.state.routeView !== 'View All' &&
@@ -342,7 +351,8 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         return (
             <PageSection className="dsl-page" isFilled padding={{ default: 'noPadding' }}>
                 <div className="dsl-page-columns">
-                    <Drawer isExpanded isInline>
+                    <Drawer isExpanded isInline className='designer-body'>
+                    {this.getIntegrationTools()}
                         <DrawerContent panelContent={this.getPropertiesPanel()}>
                             <DrawerContentBody>
                                 {this.getGraph()}
