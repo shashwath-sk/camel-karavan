@@ -1,0 +1,40 @@
+.tools-tab{
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 8px;
+  font-size: 24px;
+  border: 1px solid;
+  border-color: transparent #d2d2d2 transparent transparent;
+}
+
+.tools-sec{
+  display: flex;
+  border: 1px solid;
+  border-color: transparent #d2d2d2 transparent transparent;
+  width: 400px;
+}
+
+.tools-list{
+  display: flex;
+  flex-wrap: wrap;
+  padding: 8px;
+  gap: 8px;
+  width: 350px;
+}
+
+.allIcon{
+  cursor: pointer;
+}
+
+.kameletsIcon{
+  cursor: pointer;
+}
+
+.eipIcon{
+  cursor: pointer;
+}
+
+.componentsIcon{
+  cursor: pointer;
+}

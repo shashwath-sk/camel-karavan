@@ -42,6 +42,7 @@ import DropDownWrapper from './DropDownWrapper';
 import Draggable from 'react-draggable';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlassPlus, faMagnifyingGlassMinus, faArrowsUpDownLeftRight } from '@fortawesome/free-solid-svg-icons';
+import { IntegrationTools } from './IntegrationTools';
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
@@ -235,6 +236,16 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         );
     }
 
+    getIntegrationTools() {
+        return (
+            <DrawerPanelContent onResize={width => this.setState({ key: Math.random().toString(1) })}
+                style={{ transform: 'initial' }} isResizable hasNoBorder defaultSize={'400px'}
+                maxSize={'800px'} minSize={'300px'}>
+                <IntegrationTools />
+            </DrawerPanelContent>
+        );
+    }
+
     getGraph() {
         const { selectedUuids, integration, key, width, height, top, left } = this.state;
         const routes = CamelUi.getRoutes(integration);
@@ -246,42 +257,9 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         return (
             <div ref={this.state.printerRef} className="graph">
                 {(this.state.activeTabKey !== -1 || this.state.routeView === 'View All') && !this.state.ongoingDragging &&
-                    <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top + 10} left={left - 215} integration={integration} />
+                    <DslConnections key={this.state.activeTabKey} height={height} width={width} top={top + 10} left={left - 0} integration={integration} />
                 }
-                <div className='thumbnail-section' style={{ zIndex: 100 }}>
-                    <div className='thumbnail-header' style={{ zIndex: 100 }}>
-                        <DropDownWrapper inputArray={['View All', 'View Tabwise']} val={this.state.routeView} setVal={this.setRouteView} />
-                    </div>
-                    {
-                        this.state.routeView !== 'View All' &&
-                        <div className='thumbnail-body scrollable' style={{ zIndex: 20 }}>
-                            {
-                                routes.map((route: CamelElement, index: number) => (
-                                    <div key={index} className='single-thumbnail' onClick={(event) => {
-                                        html2canvas(this.sourceRef.current as HTMLDivElement).then((canvas) => {
-                                            const image = canvas.toDataURL();
-                                            (this.targetRef.current as HTMLDivElement).style.backgroundImage = `url(${image})`;
-                                            const exampleImg = document.getElementById(index.toString()) as HTMLImageElement;
-                                            exampleImg.setAttribute("src", image);
-                                        });
-                                        if (this.state.selectedRoutes.includes(index)) {
-                                            this.setState({ activeTabKey: this.state.selectedRoutes.indexOf(index) })
-                                        }
-                                        else {
-                                            this.setState({ selectedRoutes: [...this.state.selectedRoutes, index] });
-                                        }
-                                        this.handleActiveTabKey(this.state.selectedRoutes.indexOf(index));
-                                    }}>
-                                        <img id={index.toString()} className='single-thumbnail-image' src={''} alt='samim' />
-                                    </div>
-                                ))
-
-                            }
-                        </div>
-
-                    }
-                </div>
-                <div className="flows" data-click="FLOWS" onClick={event => this.state.logic.unselectElement(event)} style={{ zIndex: 10 }}
+                <div className="flows" data-click="FLOWS" onClick={event => this.state.logic.unselectElement(event)}
                     ref={el => this.state.logic.onResizePage(el)}>
                     {this.state.routeView !== 'View All' &&
                         <div className='routes'>
@@ -393,6 +371,37 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                         </div>
                     </div>
                 </div>
+                <div className='thumbnail-section'>
+                    <div className='thumbnail-header' style={{ zIndex: 100 }}>
+                        <DropDownWrapper inputArray={['View All', 'View Tabwise']} val={this.state.routeView} setVal={this.setRouteView} />
+                    </div>
+                    {
+                        this.state.routeView !== 'View All' &&
+                        <div className='thumbnail-body scrollable' style={{zIndex: 1}}>
+                            {
+                                routes.map((route: CamelElement, index: number) => (
+                                    <div key={index} className='single-thumbnail' onClick={(event) => {
+                                        html2canvas(this.sourceRef.current as HTMLDivElement).then((canvas) => {
+                                            const image = canvas.toDataURL();
+                                            (this.targetRef.current as HTMLDivElement).style.backgroundImage = `url(${image})`;
+                                            const exampleImg = document.getElementById(index.toString()) as HTMLImageElement;
+                                            exampleImg.setAttribute("src", image);
+                                        });
+                                        if(this.state.selectedRoutes.includes(index)){
+                                            this.setState({ activeTabKey: this.state.selectedRoutes.indexOf(index)})
+                                        }
+                                        else{
+                                            this.setState({ selectedRoutes: [...this.state.selectedRoutes, index] });
+                                        }
+                                        this.handleActiveTabKey(this.state.selectedRoutes.indexOf(index));
+                                    }}>
+                                        <img id={index.toString()} className='single-thumbnail-image' src={''} alt='samim' />
+                                    </div>
+                                ))
+                            }
+                            </div>
+                    }
+                </div>
             </div>);
     }
 
@@ -400,7 +409,8 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
         return (
             <PageSection className="dsl-page" isFilled padding={{ default: 'noPadding' }}>
                 <div className="dsl-page-columns">
-                    <Drawer isExpanded isInline>
+                    <Drawer isExpanded isInline className='designer-body'>
+                    {this.getIntegrationTools()}
                         <DrawerContent panelContent={this.getPropertiesPanel()}>
                             <DrawerContentBody>
                                 {this.getGraph()}
