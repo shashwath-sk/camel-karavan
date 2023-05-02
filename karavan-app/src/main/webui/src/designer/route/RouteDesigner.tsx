@@ -241,7 +241,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
             <DrawerPanelContent onResize={width => this.setState({ key: Math.random().toString(1) })}
                 style={{ transform: 'initial' }} isResizable hasNoBorder defaultSize={'400px'}
                 maxSize={'800px'} minSize={'300px'}>
-                <IntegrationTools />
+                <IntegrationTools parentDsl={this.state.parentDsl} onDslSelect={this.state.logic.onDslSelect} parentId={this.state.parentId} position = {this.state.selectedPosition}/>
             </DrawerPanelContent>
         );
     }
@@ -405,12 +405,13 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
             </div>);
     }
 
-    render() {
+    render() {        
         return (
             <PageSection className="dsl-page" isFilled padding={{ default: 'noPadding' }}>
                 <div className="dsl-page-columns">
                     <Drawer isExpanded isInline className='designer-body'>
-                    {this.getIntegrationTools()}
+                    {this.state.showSelector === true && this.getIntegrationTools()}
+                    {/* {this.getIntegrationTools()} */}
                         <DrawerContent panelContent={this.getPropertiesPanel()}>
                             <DrawerContentBody>
                                 {this.getGraph()}
@@ -418,7 +419,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                         </DrawerContent>
                     </Drawer>
                 </div>
-                {this.state.showSelector === true && this.getSelectorModal()}
+                {/* {this.state.showSelector === true && this.getSelectorModal()} */}
                 {this.getDeleteConfirmation()}
             </PageSection>
         );

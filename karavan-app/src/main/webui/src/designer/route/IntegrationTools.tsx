@@ -1,3 +1,4 @@
+/* eslint-disable array-callback-return */
 import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBorderAll } from '@fortawesome/free-solid-svg-icons';
@@ -5,42 +6,60 @@ import KameletsIcon from "@patternfly/react-icons/dist/js/icons/registry-icon";
 import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import {Component} from "karavan-core/lib/model/ComponentModels";
-import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {KameletModel} from "karavan-core/lib/model/KameletModels";
-import {KameletApi} from "karavan-core/lib/api/KameletApi";
-import {CamelModelMetadata, ElementMeta} from "karavan-core/lib/model/CamelMetadata";
+import {ElementMeta} from "karavan-core/lib/model/CamelMetadata";
 import { KameletCard } from "../customCard/KameletCard";
 import { ComponentCard } from "../customCard/ComponentCard";
 import { EIPCard } from "../customCard/EIPCard";
+import {CamelUi} from "../utils/CamelUi";
+import {DslMetaModel} from "../utils/DslMetaModel";
 import './IntegrationTools.css';
 
 interface State {
   component?: Component;
-  components: Component[],
+  components: DslMetaModel[],
   kamelet?: KameletModel;
-  kamelets: KameletModel[],
+  kamelets: DslMetaModel[],
   element?: ElementMeta;
-  elements: ElementMeta[],
+  elements: DslMetaModel[],
   isKameletClicked: boolean;
   isComponentClicked: boolean;
   isElementClicked: boolean;
   isAllClicked: boolean;
+  parentDsl?: string;
 }
 
-export class IntegrationTools extends React.Component {
+interface Props {
+  onDslSelect: (dsl: DslMetaModel, parentId: string, position?: number | undefined) => void,
+  parentId: string,
+  position?: number | undefined,
+  parentDsl?: string;
+}
+
+export class IntegrationTools extends React.Component <Props, State> {
   public state: State = {
     components: [],
     kamelets: [],
-    elements: CamelModelMetadata.sort((a: ElementMeta,b: ElementMeta) => a.name > b.name ? 1 : -1),
+    elements:[] ,
     isKameletClicked: false,
     isComponentClicked: false,
     isElementClicked: false,
-    isAllClicked: true
-  };
+    isAllClicked: true,
+    parentDsl: this.props.parentDsl,
+  };  
+  
   componentDidMount() {
-    this.setState({components: ComponentApi.getComponents()})
-    this.setState({kamelets: KameletApi.getKamelets()})
-
+      CamelUi.getSelectorModelsForParentFiltered(this.state.parentDsl, '', true)
+        .filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, ''))
+        .map((dsl: DslMetaModel, index: number) => {
+            if(dsl.navigation === 'kamelet') {
+              this.state.kamelets.push(dsl);
+            } else if(dsl.navigation === 'component') {
+              this.state.components.push(dsl );
+            } else {
+              this.state.elements.push(dsl);
+            }
+          });
   }
   handleKameletClick = () => {
     this.setState({isKameletClicked: true})
@@ -101,20 +120,20 @@ export class IntegrationTools extends React.Component {
         <div className='tools-list'>
           {
             (this.state.isKameletClicked || this.state.isAllClicked) && 
-            kamelets.map((k: KameletModel) => (
-              <KameletCard key={k.metadata.name} kamelet={k} />
+            kamelets.map((k: DslMetaModel, index:number) => (
+              <KameletCard key={index} kamelet={k} onDslSelect = {this.props.onDslSelect} parentId={this.props.parentId} position = {this.props.position}/>
             ))
           }
           {
             (this.state.isComponentClicked || this.state.isAllClicked) &&
-            components.map((c: Component) => (
-              <ComponentCard key={c.component.name} component={c} />
+            components.map((c: DslMetaModel, index:number) => (
+              <ComponentCard key={index} component={c} onDslSelect = {this.props.onDslSelect} parentId={this.props.parentId} position = {this.props.position}/>
             ))
           }
           {
             (this.state.isElementClicked || this.state.isAllClicked) &&
-            elements.map((e: ElementMeta) => (
-              <EIPCard key={e.name} element={e} />
+            elements.map((e: DslMetaModel, index:number) => (
+              <EIPCard key={index} element={e} onDslSelect = {this.props.onDslSelect} parentId={this.props.parentId} position = {this.props.position}/>
             ))
           } 
         </div>

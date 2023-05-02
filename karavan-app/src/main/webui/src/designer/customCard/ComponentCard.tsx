@@ -1,15 +1,19 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
-import {camelIcon, CamelUi} from "../../designer/utils/CamelUi";
-import {Component} from "karavan-core/lib/model/ComponentModels";
+import { CamelUi} from "../../designer/utils/CamelUi";
+import {DslMetaModel} from "../utils/DslMetaModel";
 import './ComponentCard.css';
 
 interface Props {
-  component: Component,
+  onDslSelect: (dsl: DslMetaModel, parentId: string, position?: number | undefined) => void,
+  parentId: string,
+  position?: number | undefined,
+  component: DslMetaModel,
 }
 
 interface State {
-  component: Component,
+ 
+  component: DslMetaModel,
 }
 
 export class ComponentCard extends React.Component<Props, State> {
@@ -17,18 +21,23 @@ export class ComponentCard extends React.Component<Props, State> {
     component: this.props.component,
 };
 
+selectDsl = (evt: React.MouseEvent, dsl: any) => {
+  evt.stopPropagation();
+  this.props.onDslSelect.call(this, dsl, this.props.parentId, this.props.position);
+}
+
   render() {
     const component = this.state.component;
     return (
-        <div className='component-card'>
+        <div className='component-card'  onClick={event => this.selectDsl(event, component)}>
           <div className='component-card-header'>
             <div className='component-card-icon'>
-              {CamelUi.getIconFromSource(camelIcon)}
+              {CamelUi.getIconForDsl(component)}
             </div>
           </div>
           <div className='component-card-title'>
               <a style={{color: 'black'}}>
-                {component.component.title}
+                {component.title}
               </a>
           </div>
         </div>

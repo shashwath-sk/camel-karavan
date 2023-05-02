@@ -1,34 +1,41 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
 import {CamelUi} from "../../designer/utils/CamelUi";
-import {KameletModel} from "karavan-core/lib/model/KameletModels";
+import {DslMetaModel} from "../utils/DslMetaModel";
 import './KameletCard.css';
 
 interface Props {
-  kamelet: KameletModel
+  onDslSelect: (dsl: DslMetaModel, parentId: string, position?: number | undefined) => void,
+  parentId: string,
+  position?: number | undefined,
+  kamelet: DslMetaModel
 }
 
 interface State {
-  kamelet: KameletModel,
+  kamelet: DslMetaModel,
 }
 
 export class KameletCard extends React.Component<Props, State> {
   public state: State = {
     kamelet: this.props.kamelet
 };
+selectDsl = (evt: React.MouseEvent, dsl: any) => {
+  evt.stopPropagation();
+  this.props.onDslSelect.call(this, dsl, this.props.parentId, this.props.position);
+}
 
   render() {
     const kamelet = this.state.kamelet;
     return (
-        <div className='card'>
+        <div className='card' onClick={event => this.selectDsl(event, kamelet)}>
           <div className='card-header'>
             <div className='card-icon'>
-              {CamelUi.getIconFromSource(kamelet.icon())}
+              {CamelUi.getIconForDsl(kamelet)}
             </div>
           </div>
           <div className='card-title'>
               <a style={{color: 'black'}}>
-                {kamelet.spec.definition.title}
+                {kamelet.title}
               </a>
           </div>
         </div>

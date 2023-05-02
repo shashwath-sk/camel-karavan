@@ -69,6 +69,7 @@ export class DslSelector extends React.Component<Props, State> {
     selectDsl = (evt: React.MouseEvent, dsl: any) => {
         evt.stopPropagation();
         this.setState({filter:""});
+        console.log(this.props.position,'smmdmdmdmmdmddmmdm');
         this.props.onDslSelect.call(this, dsl, this.props.parentId, this.props.position);
     }
 
@@ -85,6 +86,7 @@ export class DslSelector extends React.Component<Props, State> {
     }
 
     getCard(dsl: DslMetaModel, index: number) {
+        
         return (
             <Card key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
                   onClick={event => this.selectDsl(event, dsl)}>
