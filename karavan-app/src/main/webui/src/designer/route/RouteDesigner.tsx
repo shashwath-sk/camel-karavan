@@ -241,7 +241,13 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
             <DrawerPanelContent onResize={width => this.setState({ key: Math.random().toString(1) })}
                 style={{ transform: 'initial' }} isResizable hasNoBorder defaultSize={'400px'}
                 maxSize={'800px'} minSize={'300px'}>
-                <IntegrationTools parentDsl={this.state.parentDsl} onDslSelect={this.state.logic.onDslSelect} parentId={this.state.parentId} position = {this.state.selectedPosition}/>
+                <IntegrationTools 
+                 parentDsl={this.state.parentDsl}
+                 onDslSelect={this.state.logic.onDslSelect}
+                 parentId={this.state.parentId} position = {this.state.selectedPosition}
+                 tabIndex={this.state.selectorTabIndex}
+                 showSteps={this.state.showSteps}
+                 />
             </DrawerPanelContent>
         );
     }

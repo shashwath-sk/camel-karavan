@@ -27,16 +27,27 @@ interface State {
   isElementClicked: boolean;
   isAllClicked: boolean;
   parentDsl?: string;
+  tabIndex: string | number ;
+  filter: string;
 }
 
 interface Props {
   onDslSelect: (dsl: DslMetaModel, parentId: string, position?: number | undefined) => void,
   parentId: string,
   position?: number | undefined,
-  parentDsl?: string;
+  parentDsl?: string,
+  tabIndex?: string | number,
+  showSteps: boolean,
 }
 
 export class IntegrationTools extends React.Component <Props, State> {
+
+  getDefaultTabIndex = () => {
+    const x = CamelUi.getSelectorModelTypes(this.props.parentDsl, this.props.showSteps);
+    if (x.length > 0) return x[0][0]
+    else return '';
+}
+
   public state: State = {
     components: [],
     kamelets: [],
@@ -46,10 +57,13 @@ export class IntegrationTools extends React.Component <Props, State> {
     isElementClicked: false,
     isAllClicked: true,
     parentDsl: this.props.parentDsl,
+    tabIndex: this.props.tabIndex ? this.props.tabIndex : this.getDefaultTabIndex(),
+    filter: '',
   };  
   
   componentDidMount() {
-      CamelUi.getSelectorModelsForParentFiltered(this.state.parentDsl, '', true)
+    const labelText: string = this.state.tabIndex ? this.state.tabIndex.toString() : "";
+      CamelUi.getSelectorModelsForParentFiltered(this.state.parentDsl, labelText, this.props.showSteps)
         .filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, ''))
         .map((dsl: DslMetaModel, index: number) => {
             if(dsl.navigation === 'kamelet') {
