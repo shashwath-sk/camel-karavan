@@ -62,9 +62,11 @@ export class IntegrationTools extends React.Component <Props, State> {
   };  
   
   componentDidMount() {
-    const labelText: string = this.state.tabIndex ? this.state.tabIndex.toString() : "";
+    const labels: [string, number][] = CamelUi.getSelectorModelTypes(this.state.parentDsl, this.props.showSteps);
+    labels.forEach((label: [string, number]) => {
+      const labelText: string = label[0] ? label[0].toString() : "";
       CamelUi.getSelectorModelsForParentFiltered(this.state.parentDsl, labelText, this.props.showSteps)
-        .filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, ''))
+        .filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, this.state.filter))
         .map((dsl: DslMetaModel, index: number) => {
             if(dsl.navigation === 'kamelet') {
               this.state.kamelets.push(dsl);
@@ -74,6 +76,7 @@ export class IntegrationTools extends React.Component <Props, State> {
               this.state.elements.push(dsl);
             }
           });
+        });
   }
   handleKameletClick = () => {
     this.setState({isKameletClicked: true})
